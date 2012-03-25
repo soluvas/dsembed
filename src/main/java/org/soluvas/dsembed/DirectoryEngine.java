@@ -3,10 +3,10 @@ package org.soluvas.dsembed;
 import java.io.File;
 import java.util.HashSet;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.servlet.ServletContext;
+import javax.enterprise.inject.Produces;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -44,7 +44,6 @@ public class DirectoryEngine {
     /** The LDAP server */
     private LdapServer server;
 	private static File workDir;
-
 
     /**
      * Add a new partition to the server
@@ -244,7 +243,8 @@ public class DirectoryEngine {
         server.start();
     }
 
-	public void start(@Observes ServletContext context) throws Exception {
+	@PostConstruct
+	public void start() throws Exception {
     	String tmpDir = System.getProperty( "java.io.tmpdir" );
     	if (System.getenv("OPENSHIFT_DATA_DIR") != null)
     		tmpDir = System.getenv("OPENSHIFT_DATA_DIR"); 
@@ -264,7 +264,11 @@ public class DirectoryEngine {
         System.out.println( "Found entry : " + result );
         
         // optionally we can start a server too
-//        startServer();
+        startServer();
+	}
+	
+	@Produces LdapConnection createConnection() {
+		return new LdapCoreSessionConnection(service);
 	}
 	
 	@PreDestroy public void destroy() throws Exception {

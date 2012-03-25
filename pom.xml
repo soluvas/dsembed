@@ -30,7 +30,16 @@
     </dependencies>
   </dependencyManagement>
   <dependencies>
-    <dependency>
+  <dependency>
+  	<groupId>com.google.guava</groupId>
+  	<artifactId>guava</artifactId>
+  	<version>11.0.1</version>
+  </dependency>
+  <dependency>
+  		<groupId>org.picketlink.idm</groupId>
+  		<artifactId>picketlink-idm-core</artifactId>
+  	</dependency>
+  	<dependency>
       <groupId>org.jboss.solder</groupId>
       <artifactId>solder-impl</artifactId>
     </dependency>
