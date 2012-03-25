@@ -285,7 +285,10 @@ public class EmbeddedADSVer200
     {
         try
         {
-            workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
+        	String tmpDir = System.getProperty( "java.io.tmpdir" );
+        	if (System.getenv("OPENSHIFT_DATA_DIR") != null)
+        		tmpDir = System.getenv("OPENSHIFT_DATA_DIR"); 
+            workDir = new File(tmpDir, "server-work" );
             workDir.mkdirs();
             
             // Create the server
