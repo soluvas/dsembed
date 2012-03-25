@@ -34,6 +34,7 @@ import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
+import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.model.csn.Csn;
@@ -69,6 +70,10 @@ public class DirectoryEngine {
 		ds.getDirectoryService().setSchemaManager(schemaManager);
 		SchemaPartition schemaPartition = new SchemaPartition(schemaManager);
 		ds.getDirectoryService().setSchemaPartition(schemaPartition);
+		LdifPartition systemPartition = new LdifPartition(schemaManager);
+		systemPartition.setId("system");
+		systemPartition.setSuffixDn(new Dn("ou=system"));
+		ds.getDirectoryService().setSystemPartition(systemPartition);
 		
 		ds.startup();
 	}
