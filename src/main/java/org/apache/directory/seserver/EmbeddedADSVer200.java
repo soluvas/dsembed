@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -113,7 +114,8 @@ public class EmbeddedADSVer200
      */
     private void initSchemaPartition() throws Exception
     {
-        SchemaPartition schemaPartition = service.getSchemaPartition();
+    	SchemaPartition schemaPartition = new SchemaPartition(service.getSchemaManager());
+    	service.setSchemaPartition(schemaPartition);
 
         // Init the LdifPartition
         LdifPartition ldifPartition = new LdifPartition(service.getSchemaManager());
@@ -159,7 +161,8 @@ public class EmbeddedADSVer200
         // Initialize the LDAP service
         service = new DefaultDirectoryService();
         service.setSchemaManager(new DefaultSchemaManager());
-//        service.setWorkingDirectory( workDir );
+//      service.setWorkingDirectory( workDir );
+        service.setInstanceLayout(new InstanceLayout(workDir));
         
         // first load the schema
         initSchemaPartition();
