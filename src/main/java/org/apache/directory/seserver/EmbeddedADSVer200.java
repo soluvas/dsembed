@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EmbeddedADSVer157
+public class EmbeddedADSVer200
 {
     /** The directory service */
     private DirectoryService service;
@@ -227,7 +227,7 @@ public class EmbeddedADSVer157
      *
      * @throws Exception If something went wrong
      */
-    public EmbeddedADSVer157( File workDir ) throws Exception
+    public EmbeddedADSVer200( File workDir ) throws Exception
     {
         initDirectoryService( workDir );
     }
@@ -262,7 +262,7 @@ public class EmbeddedADSVer157
             workDir.mkdirs();
             
             // Create the server
-            EmbeddedADSVer157 ads = new EmbeddedADSVer157( workDir );
+            EmbeddedADSVer200 ads = new EmbeddedADSVer200( workDir );
 
             // Read an entry
             Entry result = ads.service.getAdminSession().lookup( new Dn( "dc=apache,dc=org" ) );
