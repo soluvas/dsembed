@@ -43,6 +43,8 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -54,6 +56,7 @@ import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
  */
 public class EmbeddedADSVer200
 {
+	private transient Logger log = LoggerFactory.getLogger(EmbeddedADSVer200.class);
     /** The directory service */
     private DirectoryService service;
 
@@ -114,16 +117,17 @@ public class EmbeddedADSVer200
 
         // Init the LdifPartition
         LdifPartition ldifPartition = new LdifPartition(service.getSchemaManager());
-        ldifPartition.setPartitionPath( new File(workDir, "schema").toURI() );
+        File schemaDir = new File(workDir, "schema");
+        log.info("Schema directory: {}", schemaDir);
+		ldifPartition.setPartitionPath( schemaDir.toURI() );
 
         // Extract the schema on disk (a brand new one) and load the registries
-        File schemaRepository = new File( workDir, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workDir );
         extractor.extractOrCopy( true );
 
         schemaPartition.setWrappedPartition( ldifPartition );
 
-        SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        SchemaLoader loader = new LdifSchemaLoader( schemaDir );
         SchemaManager schemaManager = new DefaultSchemaManager( loader );
         service.setSchemaManager( schemaManager );
 
@@ -154,6 +158,7 @@ public class EmbeddedADSVer200
     {
         // Initialize the LDAP service
         service = new DefaultDirectoryService();
+        service.setSchemaManager(new DefaultSchemaManager());
 //        service.setWorkingDirectory( workDir );
         
         // first load the schema
