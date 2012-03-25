@@ -86,6 +86,25 @@ public class EmbeddedADSVer200
         return partition;
     }
 
+    /**
+     * Add a new partition to the server
+     *
+     * @param partitionId The partition Id
+     * @param partitionDn The partition DN
+     * @return The newly added partition
+     * @throws Exception If the partition can't be added
+     */
+    private Partition addSystemPartition( String partitionId, String partitionDn ) throws Exception
+    {
+        // Create a new partition named 'foo'.
+        JdbmPartition partition = new JdbmPartition(service.getSchemaManager());
+        partition.setId( partitionId );
+        partition.setPartitionPath( new File( workDir, partitionId ).toURI() );
+        partition.setSuffixDn( new Dn(partitionDn) );
+
+        return partition;
+    }
+
 
     /**
      * Add a new set of index on the given attributes
@@ -124,28 +143,28 @@ public class EmbeddedADSVer200
 		ldifPartition.setPartitionPath( schemaDir.toURI() );
 
         // Extract the schema on disk (a brand new one) and load the registries
-        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workDir );
-        extractor.extractOrCopy( true );
+//        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workDir );
+//        extractor.extractOrCopy( true );
 
         schemaPartition.setWrappedPartition( ldifPartition );
 
-        SchemaLoader loader = new LdifSchemaLoader( schemaDir );
-        SchemaManager schemaManager = new DefaultSchemaManager( loader );
-        service.setSchemaManager( schemaManager );
-
-        // We have to load the schema now, otherwise we won't be able
-        // to initialize the Partitions, as we won't be able to parse 
-        // and normalize their suffix DN
-        schemaManager.loadAllEnabled();
-
-        schemaPartition.setSchemaManager( schemaManager );
-
-        List<Throwable> errors = schemaManager.getErrors();
-
-        if ( errors.size() != 0 )
-        {
-            throw new Exception( "Schema load failed : " + errors );
-        }
+//        SchemaLoader loader = new LdifSchemaLoader( schemaDir );
+//        SchemaManager schemaManager = new DefaultSchemaManager( loader );
+//        service.setSchemaManager( schemaManager );
+//
+//        // We have to load the schema now, otherwise we won't be able
+//        // to initialize the Partitions, as we won't be able to parse 
+//        // and normalize their suffix DN
+//        schemaManager.loadAllEnabled();
+//
+//        schemaPartition.setSchemaManager( schemaManager );
+//
+//        List<Throwable> errors = schemaManager.getErrors();
+//
+//        if ( errors.size() != 0 )
+//        {
+//            throw new Exception( "Schema load failed : " + errors );
+//        }
     }
     
     
@@ -169,7 +188,7 @@ public class EmbeddedADSVer200
         
         // then the system partition
         // this is a MANDATORY partition
-        Partition systemPartition = addPartition( "system", ServerDNConstants.SYSTEM_DN );
+        Partition systemPartition = addSystemPartition( "system", ServerDNConstants.SYSTEM_DN );
         service.setSystemPartition( systemPartition );
         
         // Disable the ChangeLog system
