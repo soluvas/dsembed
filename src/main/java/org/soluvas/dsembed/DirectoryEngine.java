@@ -10,6 +10,7 @@ import javax.servlet.ServletContext;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -236,7 +237,7 @@ public class DirectoryEngine {
     {
         server = new LdapServer();
         int serverPort = 10389;
-        server.setTransports( new TcpTransport( serverPort ) );
+        server.setTransports( new TcpTransport( "127.12.66.1", serverPort ) );
         server.setDirectoryService( service );
         
         server.start();
@@ -252,8 +253,10 @@ public class DirectoryEngine {
         // Create the server
         initDirectoryService( workDir );
 
+        CoreSession session = service.getAdminSession();
+        
         // Read an entry
-        Entry result = service.getAdminSession().lookup( new Dn( "dc=apache,dc=org" ) );
+        Entry result = session.lookup( new Dn( "dc=apache,dc=org" ) );
 
         // And print it if available
         System.out.println( "Found entry : " + result );
