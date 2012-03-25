@@ -8,6 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.servlet.ServletContext;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -254,7 +255,7 @@ public class DirectoryEngine {
         initDirectoryService( workDir );
 
 //        CoreSession session = service.getAdminSession();
-        LdapCoreSessionConnection ldap = new LdapCoreSessionConnection(service);
+        LdapConnection ldap = new LdapCoreSessionConnection(service);
         
         // Read an entry
         Entry result = ldap.lookup( new Dn( "dc=apache,dc=org" ) );
