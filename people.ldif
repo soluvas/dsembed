@@ -1,0 +1,14 @@
+version: 1
+
+dn: uid=arum,dc=apache,dc=org
+objectClass: organizationalPerson
+objectClass: person
+objectClass: extensibleObject
+objectClass: uidObject
+objectClass: top
+cn: Arum Puspitasari
+sn: Puspitasari
+uid: arum
+givenName: Arum
+mail: me@arumpuspita.com
+
