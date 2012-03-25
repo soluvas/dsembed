@@ -25,25 +25,24 @@ import java.util.List;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
-import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
-import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.registries.SchemaLoader;
+import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 
 
 /**
@@ -60,6 +59,7 @@ public class EmbeddedADSVer157
 
     /** The LDAP server */
     private LdapServer server;
+	private static File workDir;
 
 
     /**
@@ -73,10 +73,10 @@ public class EmbeddedADSVer157
     private Partition addPartition( String partitionId, String partitionDn ) throws Exception
     {
         // Create a new partition named 'foo'.
-        JdbmPartition partition = new JdbmPartition();
+        JdbmPartition partition = new JdbmPartition(service.getSchemaManager());
         partition.setId( partitionId );
-        partition.setPartitionDir( new File( service.getWorkingDirectory(), partitionId ) );
-        partition.setSuffix( partitionDn );
+        partition.setPartitionPath( new File( workDir, partitionId ).toURI() );
+        partition.setSuffixDn( new Dn(partitionDn) );
         service.addPartition( partition );
 
         return partition;
@@ -92,11 +92,11 @@ public class EmbeddedADSVer157
     private void addIndex( Partition partition, String... attrs )
     {
         // Index some attributes on the apache partition
-        HashSet<Index<?, ServerEntry, Long>> indexedAttributes = new HashSet<Index<?, ServerEntry, Long>>();
+        HashSet<Index<?, Entry, Long>> indexedAttributes = new HashSet<Index<?, Entry, Long>>();
 
         for ( String attribute : attrs )
         {
-            indexedAttributes.add( new JdbmIndex<String, ServerEntry>( attribute ) );
+            indexedAttributes.add( new JdbmIndex<String, Entry>( attribute ) );
         }
 
         ( ( JdbmPartition ) partition ).setIndexedAttributes( indexedAttributes );
@@ -110,16 +110,15 @@ public class EmbeddedADSVer157
      */
     private void initSchemaPartition() throws Exception
     {
-        SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
+        SchemaPartition schemaPartition = service.getSchemaPartition();
 
         // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition();
-        String workingDirectory = service.getWorkingDirectory().getPath();
-        ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
+        LdifPartition ldifPartition = new LdifPartition(service.getSchemaManager());
+        ldifPartition.setPartitionPath( new File(workDir, "schema").toURI() );
 
         // Extract the schema on disk (a brand new one) and load the registries
-        File schemaRepository = new File( workingDirectory, "schema" );
-        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        File schemaRepository = new File( workDir, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workDir );
         extractor.extractOrCopy( true );
 
         schemaPartition.setWrappedPartition( ldifPartition );
@@ -155,7 +154,7 @@ public class EmbeddedADSVer157
     {
         // Initialize the LDAP service
         service = new DefaultDirectoryService();
-        service.setWorkingDirectory( workDir );
+//        service.setWorkingDirectory( workDir );
         
         // first load the schema
         initSchemaPartition();
@@ -188,8 +187,8 @@ public class EmbeddedADSVer157
         }
         catch ( LdapException lnnfe )
         {
-            DN dnFoo = new DN( "dc=foo,dc=com" );
-            ServerEntry entryFoo = service.newEntry( dnFoo );
+            Dn dnFoo = new Dn( "dc=foo,dc=com" );
+            Entry entryFoo = service.newEntry( dnFoo );
             entryFoo.add( "objectClass", "top", "domain", "extensibleObject" );
             entryFoo.add( "dc", "foo" );
             service.getAdminSession().add( entryFoo );
@@ -202,8 +201,8 @@ public class EmbeddedADSVer157
         }
         catch ( LdapException lnnfe )
         {
-            DN dnBar = new DN( "dc=bar,dc=com" );
-            ServerEntry entryBar = service.newEntry( dnBar );
+            Dn dnBar = new Dn( "dc=bar,dc=com" );
+            Entry entryBar = service.newEntry( dnBar );
             entryBar.add( "objectClass", "top", "domain", "extensibleObject" );
             entryBar.add( "dc", "bar" );
             service.getAdminSession().add( entryBar );
@@ -212,8 +211,8 @@ public class EmbeddedADSVer157
         // Inject the apache root entry
         if ( !service.getAdminSession().exists( apachePartition.getSuffixDn() ) )
         {
-            DN dnApache = new DN( "dc=Apache,dc=Org" );
-            ServerEntry entryApache = service.newEntry( dnApache );
+            Dn dnApache = new Dn( "dc=Apache,dc=Org" );
+            Entry entryApache = service.newEntry( dnApache );
             entryApache.add( "objectClass", "top", "domain", "extensibleObject" );
             entryApache.add( "dc", "Apache" );
             service.getAdminSession().add( entryApache );
@@ -259,14 +258,14 @@ public class EmbeddedADSVer157
     {
         try
         {
-            File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
+            workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
             workDir.mkdirs();
             
             // Create the server
             EmbeddedADSVer157 ads = new EmbeddedADSVer157( workDir );
 
             // Read an entry
-            Entry result = ads.service.getAdminSession().lookup( new DN( "dc=apache,dc=org" ) );
+            Entry result = ads.service.getAdminSession().lookup( new Dn( "dc=apache,dc=org" ) );
 
             // And print it if available
             System.out.println( "Found entry : " + result );

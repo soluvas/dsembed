@@ -16,21 +16,37 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.directory.server</groupId>
 	<artifactId>apacheds-embedded-sample</artifactId>
-	<version>1.5.7</version>
+	<version>2.0.0-M6</version>
 
 	<name>ApacheDS embedded sample</name>
 	<description>ApacheDS embedded sample</description>
 	<packaging>jar</packaging>
 	
 	<properties>
-		<apacheds.version>1.5.7</apacheds.version>
+		<apacheds.version>2.0.0-M6</apacheds.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
+			<groupId>org.apache.directory.shared</groupId>
+			<artifactId>shared-ldap-codec-standalone</artifactId>
+			<version>1.0.0-M11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.directory.jdbm</groupId>
+			<artifactId>apacheds-jdbm2</artifactId>
+			<version>2.0.0-M1</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.directory.server</groupId>
 			<artifactId>apacheds-server-jndi</artifactId>
 			<version>${apacheds.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.directory.jdbm</groupId>
+					<artifactId>apacheds-jdbm2</artifactId>
+		        </exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
