@@ -5,19 +5,21 @@
   <groupId>org.soluvas.dsembed</groupId>
   <artifactId>dsembed</artifactId>
   <version>1.0.0-SNAPSHOT</version>
+  <packaging>war</packaging>
   <properties>
-  	<apacheds.version>2.0.0-M6</apacheds.version>
-	<seam.version>3.1.0.Final</seam.version>
+    <apacheds.version>2.0.0-M6</apacheds.version>
+    <seam.version>3.1.0.Final</seam.version>
+	<slf4j.version>1.6.4</slf4j.version>
   </properties>
   <dependencyManagement>
     <dependencies>
-	<dependency>
-		<groupId>org.jboss.seam</groupId>
-		<artifactId>seam-bom</artifactId>
-		<version>${seam.version}</version>
-		<type>pom</type>
-		<scope>import</scope>
-	</dependency>
+      <dependency>
+        <groupId>org.jboss.seam</groupId>
+        <artifactId>seam-bom</artifactId>
+        <version>${seam.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.jboss.spec</groupId>
         <artifactId>jboss-javaee-6.0</artifactId>
@@ -28,20 +30,36 @@
     </dependencies>
   </dependencyManagement>
   <dependencies>
-<dependency>
-	<groupId>org.jboss.solder</groupId>
-	<artifactId>solder-impl</artifactId>
-</dependency>
-  	<dependency>
-  		<groupId>org.apache.directory.server</groupId>
-  		<artifactId>apacheds-server-config</artifactId>
-  		<version>${apacheds.version}</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.apache.directory.server</groupId>
-  		<artifactId>apacheds-server-jndi</artifactId>
-  		<version>${apacheds.version}</version>
-  	</dependency>
+    <dependency>
+      <groupId>org.jboss.solder</groupId>
+      <artifactId>solder-impl</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.directory.shared</groupId>
+    	<artifactId>shared-ldap-codec-standalone</artifactId>
+    	<version>1.0.0-M11</version>
+    </dependency>
+    <dependency>
+    		<artifactId>apacheds-jdbm2</artifactId>
+    		<groupId>org.apache.directory.jdbm</groupId>
+    		<version>2.0.0-M1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-server-config</artifactId>
+      <version>${apacheds.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-server-jndi</artifactId>
+      <version>${apacheds.version}</version>
+      <exclusions>
+      	<exclusion>
+      		<artifactId>apacheds-jdbm2</artifactId>
+      		<groupId>org.apache.directory.jdbm</groupId>
+      	</exclusion>
+      </exclusions>
+    </dependency>
     <dependency>
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
@@ -53,10 +71,32 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-    	<groupId>org.jboss.spec.javax.servlet</groupId>
-    	<artifactId>jboss-servlet-api_3.0_spec</artifactId>
-    	<scope>provided</scope>
+      <groupId>org.jboss.spec.javax.servlet</groupId>
+      <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+      <scope>provided</scope>
     </dependency>
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.1.1</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-jdk14</artifactId>
+        <version>${slf4j.version}</version>
+        <scope>runtime</scope>
+      </dependency>
   </dependencies>
   <repositories>
     <repository>
@@ -74,6 +114,14 @@
           <source>1.6</source>
           <target>1.6</target>
           <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.1.1</version>
+        <extensions>false</extensions>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
       </plugin>
     </plugins>
