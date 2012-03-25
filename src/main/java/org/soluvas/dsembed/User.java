@@ -77,5 +77,14 @@ public class User implements org.picketlink.idm.api.User {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public String getFbId() {
+		try {
+			return entry.get("fbId").getString();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 
 }

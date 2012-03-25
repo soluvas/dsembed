@@ -25,6 +25,8 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,8 +124,8 @@ public class DirectoryEngine {
 		ldifPartition.setPartitionPath( schemaDir.toURI() );
 
         // Extract the schema on disk (a brand new one) and load the registries
-//        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workDir );
-//        extractor.extractOrCopy( true );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workDir );
+        extractor.extractOrCopy( true );
 
         schemaPartition.setWrappedPartition( ldifPartition );
 
@@ -272,6 +274,8 @@ public class DirectoryEngine {
 	}
 	
 	@PreDestroy public void destroy() throws Exception {
+		if (server != null && server.isStarted())
+			server.stop();
 		if (service != null)
 			service.shutdown();
 	}
