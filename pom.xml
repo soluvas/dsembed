@@ -7,7 +7,7 @@
   <version>1.0.0-SNAPSHOT</version>
   <packaging>war</packaging>
   <properties>
-    <apacheds.version>2.0.0-M6</apacheds.version>
+    <apacheds.version>1.5.7</apacheds.version>
     <seam.version>3.1.0.Final</seam.version>
 	<slf4j.version>1.6.4</slf4j.version>
   </properties>
@@ -34,31 +34,38 @@
       <groupId>org.jboss.solder</groupId>
       <artifactId>solder-impl</artifactId>
     </dependency>
-    <dependency>
-    	<groupId>org.apache.directory.shared</groupId>
-    	<artifactId>shared-ldap-codec-standalone</artifactId>
-    	<version>1.0.0-M11</version>
-    </dependency>
-    <dependency>
-    		<artifactId>apacheds-jdbm2</artifactId>
-    		<groupId>org.apache.directory.jdbm</groupId>
-    		<version>2.0.0-M1</version>
-    </dependency>
+<!--     <dependency> -->
+<!--     	<groupId>org.apache.directory.shared</groupId> -->
+<!--     	<artifactId>shared-ldap-codec-standalone</artifactId> -->
+<!--     	<version>1.0.0-M11</version> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--     		<artifactId>apacheds-jdbm2</artifactId> -->
+<!--     		<groupId>org.apache.directory.jdbm</groupId> -->
+<!--     		<version>2.0.0-M1</version> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>org.apache.directory.server</groupId> -->
+<!--       <artifactId>apacheds-all</artifactId> -->
+<!--       <version>${apacheds.version}</version> -->
+<!--     </dependency> -->
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-server-config</artifactId>
-      <version>${apacheds.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-server-jndi</artifactId>
+      <artifactId>apacheds-all</artifactId>
       <version>${apacheds.version}</version>
       <exclusions>
-      	<exclusion>
-      		<artifactId>apacheds-jdbm2</artifactId>
-      		<groupId>org.apache.directory.jdbm</groupId>
-      	</exclusion>
+        <!-- shared-ldap-schema module needs to be excluded to avoid multiple schema resources on the classpath-->
+        <exclusion>
+          <groupId>org.apache.directory.shared</groupId>
+          <artifactId>shared-ldap-schema</artifactId>
+        </exclusion>
       </exclusions>
+      <!--       <exclusions> -->
+<!--       	<exclusion> -->
+<!--       		<artifactId>apacheds-jdbm2</artifactId> -->
+<!--       		<groupId>org.apache.directory.jdbm</groupId> -->
+<!--       	</exclusion> -->
+<!--       </exclusions> -->
     </dependency>
     <dependency>
       <groupId>javax.enterprise</groupId>
