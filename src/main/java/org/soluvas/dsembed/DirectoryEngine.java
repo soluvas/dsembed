@@ -25,8 +25,10 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,29 +116,35 @@ public class DirectoryEngine {
      */
     private void initSchemaPartition() throws Exception
     {
-    	SchemaPartition schemaPartition = new SchemaPartition(service.getSchemaManager());
+    	SchemaManager schemaManager = service.getSchemaManager();
+    	
+    	
+    	SchemaPartition schemaPartition = new SchemaPartition(schemaManager);
     	service.setSchemaPartition(schemaPartition);
 
         // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition(service.getSchemaManager());
+        LdifPartition ldifPartition = new LdifPartition(schemaManager);
         File schemaDir = new File(workDir, "schema");
         log.info("Schema directory: {}", schemaDir);
 		ldifPartition.setPartitionPath( schemaDir.toURI() );
 
         // Extract the schema on disk (a brand new one) and load the registries
-        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workDir );
-        extractor.extractOrCopy( true );
+		if (!schemaDir.exists()) {
+	        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workDir );
+	        extractor.extractOrCopy( true );
+		}
 
         schemaPartition.setWrappedPartition( ldifPartition );
 
 //        SchemaLoader loader = new LdifSchemaLoader( schemaDir );
 //        SchemaManager schemaManager = new DefaultSchemaManager( loader );
 //        service.setSchemaManager( schemaManager );
-//
-//        // We have to load the schema now, otherwise we won't be able
-//        // to initialize the Partitions, as we won't be able to parse 
-//        // and normalize their suffix DN
-//        schemaManager.loadAllEnabled();
+        schemaManager.setSchemaLoader(new LdifSchemaLoader(schemaDir));
+
+        // We have to load the schema now, otherwise we won't be able
+        // to initialize the Partitions, as we won't be able to parse 
+        // and normalize their suffix DN
+        schemaManager.loadAllEnabled();
 //
 //        schemaPartition.setSchemaManager( schemaManager );
 //
