@@ -6,7 +6,9 @@ objectClass: person
 objectClass: extensibleObject
 objectClass: uidObject
 objectClass: top
+objectClass: facebookObject
 cn: Arum Puspitasari
+fbId: 1214161503
 sn: Puspitasari
 uid: arum
 givenName: Arum
